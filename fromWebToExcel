@@ -1,0 +1,56 @@
+import pandas as pd
+import csv
+from bs4 import BeautifulSoup as bs
+from bs4 import Comment 
+import requests
+
+# import the web page saved, and assign the data in the table to souptr
+
+path = 'D:/fromWbToExcel/test.html'
+htmlfile = open(path, 'r', encoding='utf-8')
+htmlhandle = htmlfile.read()
+soup = bs(htmlhandle, 'lxml')
+souptr=soup.find_all('tr')
+print(souptr)
+
+# Organize the data, and save it to 'D:/fromWbToExcel/test.xlsx'
+
+df  = pd.DataFrame(columns=range(0,5), index = range(0,435)) #When I know the row number
+row_marker = 0
+for row in souptr:
+    column_marker = 0
+    columns = row.find_all('td')
+    for column in columns:
+        df.iat[row_marker,column_marker] = column.get_text()
+        column_marker += 1
+    if len(columns) > 0:
+        row_marker += 1
+df.to_excel('D:/fromWbToExcel/test.xlsx')
+
+# assign the university data to variable 'university', assign the rank data of each university to variable 'rank'
+
+referTable = pd.DataFrame(pd.read_excel('D:/fromWbToExcel/test.xlsx'))
+university = referTable[1]
+rank = referTable[0]
+
+#According to the rank of each university in 'test.xlsx', rank the universitys in 'DataCollected.xlsx', and save the rank data in ranklist
+
+targetTable = pd.DataFrame(pd.read_excel('D:/fromWbToExcel/DataCollected.xlsx',2)) # The data has been saved in sheet3 in 'DataCollected.xlsx'
+targetUni = targetTable[0]
+ranklist =[]
+for i in range(0,50):
+    f=0
+    for j in range(0, len(university)-1):
+        if targetuni[i] in university[j]:
+            ranklist.append(rank[j])
+            break
+        f+=1
+    if f==len(university)-1:
+        ranklist.append('')
+
+save the rank data in 'D:/fromWbToExcel/rank.xlsx', Sheet1, second column.
+
+df1=pd.DataFrame({'rank':ranklist})
+writer=pd.ExcelWriter('D:/fromWbToExcel/rank.xlsx')
+df1.to_excel(writer,sheet_name='Sheet1',startcol=1,index=False)
+writer.save()
