@@ -6,7 +6,7 @@ import requests
 
 # import the web page saved, and assign the data in the table to souptr
 
-path = 'D:/fromWbToExcel/test.html'
+path = 'D:/UFL/'+str(n)+'.html'
 htmlfile = open(path, 'r', encoding='utf-8')
 htmlhandle = htmlfile.read()
 soup = bs(htmlhandle, 'lxml')
@@ -25,32 +25,53 @@ for row in souptr:
         column_marker += 1
     if len(columns) > 0:
         row_marker += 1
-df.to_excel('D:/fromWbToExcel/test.xlsx')
+df.to_excel('D:/UFL/test.xlsx')
 
 # assign the university data to variable 'university', assign the rank data of each university to variable 'rank'
 
-referTable = pd.DataFrame(pd.read_excel('D:/fromWbToExcel/test.xlsx'))
-university = referTable[1]
-rank = referTable[0]
+df = pd.read_excel('D:/UFL/test.xlsx')
+df.dropna(axis=0, subset=[1],how='any', inplace=True)
+refertable = pd.DataFrame(df)
+university = refertable[1]
+rank = refertable[0]
+articles = refertable[2]
+score = refertable[3]
 
 #According to the rank of each university in 'test.xlsx', rank the universitys in 'DataCollected.xlsx', and save the rank data in ranklist
 
-targetTable = pd.DataFrame(pd.read_excel('D:/fromWbToExcel/DataCollected.xlsx',2)) # The data has been saved in sheet3 in 'DataCollected.xlsx'
-targetUni = targetTable[0]
+writetable = pd.DataFrame(pd.read_excel('D:/UFL/test3.xlsx'))
+writeuni = writetable['phd']
+print(university)
 ranklist =[]
-for i in range(0,50):
+articleslist = []
+scorelist = []
+for i in range(0,82):
     f=0
     for j in range(0, len(university)-1):
-        if targetuni[i] in university[j]:
+        if writeuni[i] in university[j]:
             ranklist.append(rank[j])
+            articleslist.append(articles[j])
+            scorelist.append(score[j])
             break
         f+=1
     if f==len(university)-1:
         ranklist.append('')
+        articleslist.append('')
+        scorelist.append('')
 
-save the rank data in 'D:/fromWbToExcel/rank.xlsx', Sheet1, second column.
+print(ranklist)
+print(articleslist)
+print(scorelist)
+print(n)
 
-df1=pd.DataFrame({'rank':ranklist})
-writer=pd.ExcelWriter('D:/fromWbToExcel/rank.xlsx')
+m = 1990+n
+df1=pd.DataFrame({m:ranklist})
+df2=pd.DataFrame({m:articleslist})
+df3=pd.DataFrame({m:scorelist})
+writer=pd.ExcelWriter('D:/UFL/ISOM/2020 fall/project/test2.xlsx')
 df1.to_excel(writer,sheet_name='Sheet1',startcol=1,index=False)
+df2.to_excel(writer,sheet_name='Sheet1',startcol=2,index=False)
+df3.to_excel(writer,sheet_name='Sheet1',startcol=3,index=False)
+n+=1
+
 writer.save()
